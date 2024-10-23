@@ -1,0 +1,24 @@
+name: url-shortener
+
+services:
+  postgres:
+    image: "postgres:17-alpine"
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+    depends_on:
+      - url-shortener
+  url-shortener:
+    build: .
+    restart: on-failure
+    environment:
+      - DOMAIN=localhost:8080
+      - SERVER_ADDR=:8080
+      - POSTGRES_URL=postgresql://postgres:root@postgres:5432
+    ports:
+      - 8080:8080
